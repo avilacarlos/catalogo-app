@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú | Art & Print</title>
+
+    <!-- AQUÍ ESTÁ LA SOLUCIÓN: Conectamos el estilo directamente -->
+    <link rel="stylesheet" href="/src/style.css">
+    <script src="/src/auth-guard.js"></script>
+</head>
+
+<body>
+    <div class="mobile-container">
+
+        <!-- Panel de Vidrio -->
+        <div class="glass-panel" style="justify-content: center; height: 100%; border-radius: 0;">
+
+            <h1>Elige el verso <br>perfecto para <br> tu invitación</h1>
+
+            <!-- Lista Vertical de Botones -->
+            <div class="category-menu">
+                <a href="/catalogo.html?cat=boda" class="category-button">Boda</a>
+                <a href="/catalogo.html?cat=xv" class="category-button">Quince Años</a>
+                <a href="/catalogo.html?cat=bautizo" class="category-button">Bautizo / Comunion</a>
+                <a href="/catalogo.html?cat=varios" class="category-button">Esquelas</a>
+            </div>
+
+            <!-- Botón cerrar sesión -->
+            <button onclick="cerrarSesion()" class="link-small"
+                style="background:none; border:none; margin-top: 30px; cursor: pointer;">
+                Cerrar Sesión
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        function cerrarSesion() {
+            sessionStorage.clear();
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+
+</html>
