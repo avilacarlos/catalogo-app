@@ -4,8 +4,8 @@ import Parallax from 'parallax-js';
 
 // --- CONFIGURACIÓN DE SUPABASE ---
 // Reemplaza esto con tus datos REALES (los puedes ver en tu dashboard de Supabase)
-const SUPABASE_URL = 'https://lseheeajwwhjsqjtffal.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzZWhlZWFqd3doanNxanRmZmFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1Nzc2NTQsImV4cCI6MjA2NjE1MzY1NH0.Q6S4salQ1ihghhDAJtb-jb4amvKNiJGX1843uJJontw'; // <--- PEGA TU KEY AQUÍ
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
