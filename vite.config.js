@@ -7,7 +7,8 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         menu: resolve(__dirname, 'menu.html'),
-        catalogo: resolve(__dirname, 'catalogo.html')
+        catalogo: resolve(__dirname, 'catalogo.html'),
+        eventos: resolve(__dirname, '/v2/catalogo.html')
       }
     }
   }
