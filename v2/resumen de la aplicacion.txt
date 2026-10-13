@@ -1,0 +1,674 @@
+resumen técnico de la aplicación completa, pensado como documento base para retomar el desarrollo sin tener que reconstruir toda la conversación.
+
+Art & Print — Catálogo de Versos V2
+1. Objetivo
+
+Aplicación web móvil-first para que los clientes de Art & Print puedan consultar y elegir el verso que utilizarán en su invitación.
+
+La V2 sustituirá el catálogo genérico actual por un sistema de catálogos personalizados por evento.
+
+El cliente recibe una URL única, por ejemplo:
+
+catalogo-versos.pages.dev/ana-y-diego-x7k2
+
+Al acceder, el sistema identifica el evento y automáticamente muestra:
+
+nombre personalizado del cliente/evento;
+categoría correspondiente;
+únicamente los versos de esa categoría;
+favoritos;
+selección final.
+
+No habrá contraseña ni selección manual de categoría.
+
+2. Flujo general
+                  PANEL ADMINISTRATIVO
+                          │
+                          ▼
+                    Crear cliente
+                          │
+                          ▼
+                    Crear evento
+                          │
+                ┌─────────┴─────────┐
+                │                   │
+          Tipo de evento          URL única
+             Boda          /ana-y-diego-x7k2
+                │                   │
+                └─────────┬─────────┘
+                          ▼
+                  CATÁLOGO CLIENTE
+                          │
+                          ▼
+                  Identificar evento
+                          │
+                          ▼
+                Obtener categoría
+                          │
+                          ▼
+                Cargar sus versos
+                          │
+             ┌────────────┼────────────┐
+             ▼            ▼            ▼
+          Favoritos    Compartir    Seleccionar
+                                      │
+                                      ▼
+                              Registrar selección
+                                      │
+                                      ▼
+                               PANEL ADMINISTRATIVO
+3. Arquitectura de datos
+
+El proyecto continuará utilizando el mismo proyecto de Supabase que ya utiliza Art & Print.
+
+No se creará un proyecto Supabase independiente.
+
+La razón principal es que el panel actual ya administra los versos y necesitamos mantener una única fuente de datos.
+
+Tablas nuevas
+categorias_verso
+clientes
+eventos
+favoritos
+selecciones
+Tabla existente
+versos
+
+La tabla versos actual no se modifica inicialmente, para no romper el sistema que ya está funcionando.
+
+4. Relación entre tablas
+
+La arquitectura propuesta:
+
+categorias_verso
+       │
+       │ 1:N
+       ▼
+     versos
+       ▲
+       │
+       ├────────────── favoritos
+       │
+       └────────────── selecciones
+
+
+clientes
+    │
+    │ 1:N
+    ▼
+ eventos
+    │
+    ├── categoria_id
+    │
+    ├── favoritos
+    │
+    └── selección
+Conceptualmente
+Cliente
+  └── Evento
+       ├── Categoría
+       ├── URL
+       ├── Favoritos
+       └── Selección
+5. categorias_verso
+
+Catálogo maestro de categorías.
+
+Inicialmente:
+
+1 → Boda
+2 → XV Años
+3 → Bautizo
+4 → Varios
+
+Más adelante:
+
+Varios → Esquelas
+
+como ya acordamos.
+
+Campos principales:
+
+id
+nombre
+slug
+descripcion
+orden
+activo
+created_at
+updated_at
+6. versos
+
+Es la tabla que ya tienes actualmente.
+
+Actualmente:
+
+id
+categoria
+codigo
+contenido
+created_at
+
+Ejemplo:
+
+Boda | B01 | "Dos vidas..."
+Boda | B02 | "Porque no seremos..."
+XV Años | XV01 | "..."
+Estado actual
+
+No se modifica todavía.
+
+Etapa posterior
+
+Se migrará para que utilice:
+
+categoria_id
+
+en lugar de guardar directamente el nombre de la categoría como texto.
+
+Esto permitirá una relación formal:
+
+categorias_verso
+       │
+       ▼
+     versos
+7. clientes
+
+Representa a la persona asociada al pedido.
+
+Campos:
+
+id
+nombre
+telefono
+notas
+activo
+created_at
+updated_at
+
+Ejemplo:
+
+id: 15
+nombre: Ana López
+telefono: 5512345678
+
+El cliente no es necesariamente el evento.
+
+Esto permite que en el futuro un mismo cliente tenga varios eventos.
+
+8. eventos
+
+Esta será la pieza central del nuevo sistema.
+
+Representa el catálogo personalizado.
+
+Campos:
+
+id
+cliente_id
+categoria_id
+nombre
+slug
+fecha
+estado
+notas
+created_at
+updated_at
+
+Ejemplo:
+
+cliente_id: 15
+categoria_id: 1
+nombre: Ana & Diego
+slug: ana-y-diego-x7k2
+fecha: 2026-11-14
+estado: activo
+
+El slug será la URL pública del catálogo.
+
+9. No habrá tabla de accesos
+
+Se decidió eliminar el concepto de:
+
+passwords
+accesos
+claves
+
+para el catálogo de versos.
+
+El cliente no necesita iniciar sesión.
+
+La URL identifica directamente el catálogo:
+
+/ana-y-diego-x7k2
+Importante
+
+No se utilizará únicamente:
+
+/ana-y-diego
+
+porque sería demasiado fácil de adivinar.
+
+La idea es utilizar:
+
+nombre-amigable + identificador aleatorio
+
+por ejemplo:
+
+ana-y-diego-x7k2
+
+La URL sigue siendo agradable para el usuario, pero es mucho menos predecible.
+
+10. Estados del evento
+
+Un evento puede tener:
+
+borrador
+activo
+cerrado
+archivado
+Borrador
+
+Se está preparando y todavía no debería estar disponible.
+
+Activo
+
+El cliente puede consultar y seleccionar.
+
+Cerrado
+
+El catálogo existe, pero ya no acepta interacción.
+
+Archivado
+
+Se conserva para administración histórica pero no aparece normalmente.
+
+11. favoritos
+
+Representa la acción Guardar del cliente.
+
+Un cliente puede guardar varios versos:
+
+B01 ♥
+B04 ♥
+B07 ♥
+
+Estructura:
+
+id
+evento_id
+verso_id
+created_at
+
+Existe una restricción:
+
+evento_id + verso_id = único
+
+Por lo tanto, el mismo verso no puede guardarse dos veces.
+
+12. selecciones
+
+Representa el verso que el cliente eligió oficialmente.
+
+Estructura:
+
+id
+evento_id
+verso_id
+estado
+created_at
+updated_at
+
+Estados iniciales:
+
+seleccionado
+confirmado
+
+Y cada evento tendrá una sola selección actual.
+
+Ejemplo:
+
+Ana & Diego
+Verso elegido: B07
+Estado: seleccionado
+
+Si posteriormente cambia de B07 a B12, simplemente se actualiza la selección actual.
+
+No vamos a implementar historial de cambios todavía.
+
+13. Acciones del cliente
+
+La interfaz tendrá tres acciones claramente diferenciadas.
+
+♡ Guardar
+
+Guarda el verso en favoritos.
+
+No significa que lo haya elegido.
+
+↗ Compartir
+
+Comparte el verso, no el catálogo.
+
+Se contemplan dos modalidades:
+
+Compartir como texto
+Compartir como imagen
+
+La imagen será una pequeña tarjeta con la identidad visual de Art & Print.
+
+No debe compartir:
+
+contraseña;
+acceso administrativo;
+datos del cliente;
+URL privada del catálogo.
+✓ Elegir este verso
+
+Registra la elección en:
+
+selecciones
+
+Después puede aparecer:
+
+✓ Verso elegido
+
+y opcionalmente:
+
+Cambiar elección
+
+También se puede generar un mensaje de WhatsApp, por ejemplo:
+
+Hola, elegimos el verso B01 para nuestra invitación. 💕
+
+La ventaja es que la selección queda registrada aunque el cliente no mande WhatsApp.
+
+14. Experiencia del cliente
+
+La experiencia prevista:
+
+URL personalizada
+       ↓
+Hola, Ana & Diego
+       ↓
+Versos para tu Boda
+       ↓
+B01
+B02
+B03
+...
+       ↓
+Ver verso
+       ↓
+Guardar / Compartir / Elegir
+
+No habrá:
+
+Selecciona tu categoría
+
+porque el sistema ya sabe que el evento es una boda.
+
+Tampoco habrá:
+
+Boda
+XV
+Bautizo
+Esquelas
+
+para el cliente.
+
+Esas categorías son para administración.
+
+15. Panel administrativo
+
+El panel actual seguirá siendo la herramienta de administración.
+
+Pero conceptualmente evolucionará de:
+
+Claves
+Versos
+...
+
+hacia:
+
+Clientes
+Eventos
+Versos
+Crear evento
+
+Desde el panel:
+
+Cliente:
+Ana López
+
+Nombre del evento:
+Ana & Diego
+
+Categoría:
+Boda
+
+Fecha:
+14/11/2026
+
+El sistema genera automáticamente:
+
+ana-y-diego-x7k2
+
+y muestra:
+
+URL del catálogo
+[ Copiar ]
+
+[ Abrir ]
+
+[ Compartir ]
+16. Panel de un evento
+
+Idealmente podremos consultar:
+
+ANA & DIEGO
+
+Boda
+14 noviembre 2026
+
+Estado
+● Activo
+
+URL
+ana-y-diego-x7k2
+
+Favoritos
+B01 · B04 · B07
+
+Verso elegido
+B04
+
+Estado
+● Seleccionado
+
+Último acceso
+...
+
+Esto convierte el catálogo en parte real del flujo de producción de Art & Print.
+
+17. Diseño visual
+
+La nueva aplicación seguirá la identidad visual que acabamos de definir para Art & Print.
+
+Paleta conceptual
+marfil/blanco cálido
+rosa empolvado
+rosa principal
+champagne/dorado
+verde salvia
+carbón
+Elementos
+flores acuareladas;
+hojas;
+detalles dorados;
+serif para títulos;
+sans-serif para interfaz;
+script únicamente como acento.
+
+La regla visual principal:
+
+La decoración debe acompañar al contenido, no competir con él.
+
+Especialmente importante en las tarjetas de versos.
+
+18. Arquitectura frontend
+
+La aplicación será:
+
+mobile-first
+
+y debería funcionar principalmente alrededor de:
+
+360–430 px
+
+La experiencia desktop puede existir, pero no será el objetivo principal del catálogo del cliente.
+
+Para el frontend se puede continuar con:
+
+HTML
+CSS
+JavaScript
+
+utilizando una estructura modular.
+
+Si posteriormente se decide utilizar React/Vite, la arquitectura de datos seguirá siendo válida.
+
+19. Backend
+Supabase
+
+Será la fuente de datos:
+
+PostgreSQL
+      +
+Supabase API
+
+Más adelante se puede utilizar:
+
+RLS;
+funciones;
+RPC;
+Edge Functions;
+
+cuando realmente sean necesarias.
+
+Por ahora:
+
+RLS desactivado
+
+Esto es deliberado para facilitar el desarrollo.
+
+No debe considerarse configuración de producción.
+
+Antes de publicar la versión definitiva habrá que diseñar las políticas de seguridad.
+
+20. Estrategia de migración
+
+No vamos a destruir el sistema actual.
+
+Etapa 1
+
+Mantener:
+
+versos
+
+tal como está.
+
+Etapa 2
+
+Crear:
+
+categorias_verso
+clientes
+eventos
+favoritos
+selecciones
+Etapa 3
+
+Construir el nuevo catálogo.
+
+Etapa 4
+
+Probar:
+
+URL
+ ↓
+evento
+ ↓
+categoría
+ ↓
+versos
+Etapa 5
+
+Implementar:
+
+favoritos
+ ↓
+selección
+ ↓
+WhatsApp
+Etapa 6
+
+Actualizar el panel.
+
+Etapa 7
+
+Migrar versos a la relación formal mediante categoria_id.
+
+Etapa 8
+
+Eliminar la estructura antigua cuando ya no tenga dependencias.
+
+21. Principio importante: una sola fuente de verdad
+
+No queremos esto:
+
+Panel ──► Supabase A
+             │
+             ▼
+          Versos
+
+Catálogo ─► Supabase B
+             │
+             ▼
+          Versos
+
+Queremos:
+
+              SUPABASE
+                  │
+          ┌───────┴───────┐
+          ▼               ▼
+       PANEL           CATÁLOGO
+          │               │
+          └───────┬───────┘
+                  ▼
+              mismos datos
+
+Si modificas B01 desde el panel, el catálogo debe mostrar inmediatamente B01 actualizado.
+
+22. Lo que queda fuera de esta V2
+
+Por ahora no vamos a complicar el sistema con:
+
+cuentas de usuario para clientes;
+autenticación individual;
+historial de selecciones;
+permisos RLS definitivos;
+asignación manual de versos por cliente;
+múltiples categorías por evento;
+versiones del mismo verso;
+comentarios sobre versos;
+estadísticas avanzadas.
+
+Si posteriormente aparece una necesidad real, se incorpora.
+
+Resumen en una frase
+
+La V2 será un catálogo de versos personalizado por evento, alojado sobre el mismo Supabase que ya utiliza Art & Print, donde cada evento tiene una URL única, el cliente ve exclusivamente los versos de su categoría, puede guardarlos, compartirlos y registrar una selección, mientras el panel administra clientes, eventos y versos sin necesidad de modificar código.
+
+Y una decisión particularmente importante ya quedó tomada: el proyecto nuevo no reemplaza de golpe al actual. Vamos a construirlo junto al sistema existente y migrar gradualmente. Eso nos permite avanzar sin arriesgar el catálogo que ya utilizas con clientes.

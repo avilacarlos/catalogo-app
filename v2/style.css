@@ -1,0 +1,255 @@
+/* Art & Print — CSS propio mínimo.
+   La mayor parte de la interfaz utiliza Tailwind CSS v3.4.17. */
+
+:root { color-scheme: light; }
+
+html {
+  scroll-behavior: smooth;
+  background: #fbf4f0;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible, a:focus-visible {
+  outline: 2px solid #bd8b55;
+  outline-offset: 3px;
+}
+
+.app-shell {
+  min-height: 100svh;
+}
+
+.ap-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(201,111,136,.13), transparent 28%),
+    radial-gradient(circle at 90% 24%, rgba(135,144,127,.13), transparent 25%),
+    radial-gradient(circle at 30% 92%, rgba(189,139,85,.09), transparent 25%),
+    url("./assets/fondoa.webp") center / cover no-repeat;
+}
+
+.ap-background::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: .22;
+  background-image: radial-gradient(circle, rgba(189,139,85,.32) 1px, transparent 1.5px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(to bottom, black, transparent 70%);
+}
+
+.verse-content {
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.view-enter {
+  animation: viewEnter .24s ease-out both;
+}
+
+@keyframes viewEnter {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.loader-ring {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(201,111,136,.20);
+  border-top-color: #c96f88;
+  border-radius: 999px;
+  animation: spin .75s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.nav-item {
+  display: flex;
+  min-height: 48px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 14px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+@media (min-width: 640px) {
+  .app-shell {
+    width: min(100%, 520px);
+    margin-inline: auto;
+    box-shadow: 0 0 60px rgba(55,35,45,.08);
+    background: rgba(251,244,240,.92);
+  }
+}
+
+.admin-v2-body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #fbf4f0;
+  color: #26222a;
+}
+
+.events-shell {
+  width: min(100%, 620px);
+  margin-inline: auto;
+  padding: 24px 16px 40px;
+}
+
+.events-panel {
+  position: relative;
+  padding: 24px 4px;
+}
+
+.events-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #b45d79;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .18em;
+}
+
+.events-header h1 {
+  margin: 5px 0 0;
+  font: 2.3rem Georgia, serif;
+}
+
+.subtitle {
+  margin: 7px 0 0;
+  color: #716b74;
+  font-size: .88rem;
+}
+
+.back-link {
+  color: #b45d79;
+  font-size: .8rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.events-status {
+  margin: 24px 0 12px;
+  color: #7e7a82;
+  font-size: .85rem;
+}
+
+.event-form {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid #ead8d5;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .66);
+}
+
+.event-form h2 { margin: 0 0 14px; font: 1.25rem Georgia, serif; }
+.form-grid { display: grid; gap: 10px; }
+.form-grid label { display: grid; gap: 5px; color: #716b74; font-size: .75rem; }
+.form-grid input,
+.form-grid select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 11px;
+  border: 1px solid #ead8d5;
+  border-radius: 10px;
+  background: #fff;
+  color: #302a32;
+  font: inherit;
+}
+.form-submit { margin-top: 14px; padding: 10px 16px; border: 0; border-radius: 999px; background: #c96f88; color: #fff; cursor: pointer; font: inherit; }
+.form-submit:disabled { opacity: .6; cursor: wait; }
+.form-message { min-height: 20px; margin: 10px 0 0; color: #87907f; font-size: .78rem; }
+
+.events-list { display: grid; gap: 16px; }
+
+.event-card {
+  padding: 18px;
+  border: 1px solid #ead8d5;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .78);
+  box-shadow: 0 5px 18px rgba(74, 45, 55, .08);
+}
+
+.event-card-top,
+.event-actions,
+.event-data {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.event-card h2 {
+  margin: 8px 0 4px;
+  color: #302a32;
+  font: 1.35rem Georgia, serif;
+}
+
+.event-card p { margin: 0; color: #716b74; font-size: .85rem; line-height: 1.5; }
+.event-date { color: #8b8a80; font-size: .75rem; text-align: right; }
+
+.event-status {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.event-status-activo { background: #87907f; }
+.event-status-borrador { background: #bd8b55; }
+.event-status-cerrado,
+.event-status-archivado { background: #8b858b; }
+
+.event-data {
+  margin: 16px 0 12px;
+  padding: 12px 0;
+  border-top: 1px solid #f0e1df;
+  border-bottom: 1px solid #f0e1df;
+}
+
+.event-data div { display: grid; gap: 3px; }
+.event-data small { color: #9a8e91; font-size: .7rem; }
+.event-data strong { color: #b45d79; font-size: 1rem; }
+.event-selection { min-height: 42px; font: italic .95rem/1.5 Georgia, serif; }
+
+.event-actions { align-items: center; margin-top: 16px; }
+
+.event-actions a,
+.event-actions button {
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #f4e3e1;
+  color: #b45d79;
+  cursor: pointer;
+  font: inherit;
+  font-size: .78rem;
+  text-decoration: none;
+}
+
+.event-actions a { background: #c96f88; color: #fff; }
+.events-empty { padding: 20px 0; text-align: center; }

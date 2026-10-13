@@ -1,0 +1,746 @@
+documento técnico de referencia de la base de datos, separando claramente lo que ya existe, lo nuevo, la convivencia temporal y la migración definitiva.
+
+Art & Print — Catálogo de Versos V2
+Arquitectura de base de datos y estrategia de migración
+1. Principio general
+
+La V2 utilizará el mismo proyecto de Supabase que ya utiliza Art & Print.
+
+No se creará una base de datos independiente.
+
+La razón es que el catálogo actual ya contiene los versos y el panel administrativo ya permite administrarlos. La nueva aplicación debe reutilizar esos datos, no duplicarlos.
+
+La arquitectura tendrá dos etapas:
+
+ETAPA 1 — TRANSICIÓN
+
+Sistema actual
+     │
+     └── versos ←──────── Panel actual
+
+Sistema nuevo
+     │
+     ├── categorias_verso
+     ├── clientes
+     ├── eventos
+     ├── favoritos
+     └── selecciones
+             │
+             └── utiliza temporalmente "versos"
+
+
+ETAPA 2 — DEFINITIVA
+
+categorias_verso
+       │
+       ▼
+     versos
+       ▲
+       │
+       ├── favoritos
+       └── selecciones
+
+clientes
+   │
+   ▼
+eventos
+   │
+   └── categoria_id
+2. Tablas existentes
+
+Actualmente ya existe:
+
+versos
+versos
+├── id
+├── categoria
+├── codigo
+├── contenido
+└── created_at
+
+Ejemplo:
+
+id	categoria	codigo	contenido
+1	boda	B01	Dos vidas...
+2	boda	B02	Porque no seremos...
+3	xv	XV01	...
+4	bautizo	BA01	...
+5	varios	V01	...
+Estado
+
+Esta tabla no se modifica inicialmente.
+
+El panel actual continuará utilizándola.
+
+Esto permite que:
+
+el catálogo actual siga funcionando;
+el panel siga agregando versos;
+puedas corregir versos;
+puedas eliminar versos;
+no tengamos que migrar todo antes de empezar la V2.
+3. Nuevas tablas
+
+Se crearán cinco tablas.
+
+categorias_verso
+clientes
+eventos
+favoritos
+selecciones
+4. categorias_verso
+
+Representa las categorías disponibles para los versos.
+
+categorias_verso
+├── id
+├── nombre
+├── slug
+├── descripcion
+├── orden
+├── activo
+├── created_at
+└── updated_at
+
+Inicialmente:
+
+1 | Boda
+2 | XV Años
+3 | Bautizo
+4 | Varios
+
+Posteriormente:
+
+4 | Esquelas
+Relación futura
+categorias_verso
+       │
+       │ 1:N
+       ▼
+     versos
+
+Una categoría puede tener muchos versos.
+
+5. clientes
+
+Representa al cliente de Art & Print.
+
+clientes
+├── id
+├── nombre
+├── telefono
+├── notas
+├── activo
+├── created_at
+└── updated_at
+
+Ejemplo:
+
+15 | Ana López | 5512345678
+Relación
+cliente
+   │
+   │ 1:N
+   ▼
+eventos
+
+Esto permite que un mismo cliente pueda tener varios eventos.
+
+6. eventos
+
+Esta es la tabla central de la nueva aplicación.
+
+Un registro de eventos representa un catálogo personalizado.
+
+eventos
+├── id
+├── cliente_id
+├── categoria_id
+├── nombre
+├── slug
+├── fecha
+├── estado
+├── notas
+├── created_at
+└── updated_at
+
+Ejemplo:
+
+id:           27
+cliente_id:   15
+categoria_id: 1
+nombre:       Ana & Diego
+slug:         ana-y-diego-x7k2
+fecha:        2026-11-14
+estado:       activo
+
+Relaciones:
+
+clientes
+    │
+    │ 1:N
+    ▼
+ eventos
+    │
+    │ N:1
+    ▼
+categorias_verso
+7. slug
+
+El slug será el identificador público del catálogo.
+
+Ejemplo:
+
+catalogo-versos.pages.dev/ana-y-diego-x7k2
+
+El sistema recibe:
+
+ana-y-diego-x7k2
+
+y busca:
+
+select *
+from eventos
+where slug = 'ana-y-diego-x7k2';
+
+Si existe y está activo, se carga el catálogo.
+
+No habrá tabla de contraseñas para este sistema.
+
+8. favoritos
+
+Representa los versos que el cliente guarda mientras está revisando.
+
+favoritos
+├── id
+├── evento_id
+├── verso_id
+└── created_at
+
+Relaciones:
+
+eventos
+   │
+   │ 1:N
+   ▼
+favoritos
+   ▲
+   │ N:1
+   │
+versos
+
+Esto permite:
+
+Ana & Diego
+
+♥ B01
+♥ B04
+♥ B07
+
+Un evento puede tener muchos favoritos.
+
+El mismo verso no puede aparecer dos veces para el mismo evento gracias a:
+
+unique(evento_id, verso_id)
+9. selecciones
+
+Representa el verso que el cliente ha elegido oficialmente.
+
+selecciones
+├── id
+├── evento_id
+├── verso_id
+├── estado
+├── created_at
+└── updated_at
+
+Relaciones:
+
+eventos
+   │
+   │ 1:1
+   ▼
+selecciones
+   ▲
+   │ N:1
+   │
+versos
+
+Cada evento tendrá una única selección actual.
+
+Ejemplo:
+
+Ana & Diego
+       │
+       └── selección → B07
+
+El estado puede ser:
+
+seleccionado
+confirmado
+10. Diagrama completo
+
+La arquitectura definitiva:
+
+                         ┌─────────────────────┐
+                         │ categorias_verso    │
+                         │                     │
+                         │ id                  │
+                         │ nombre              │
+                         │ slug                │
+                         └──────────┬──────────┘
+                                    │
+                                    │ 1:N
+                                    ▼
+                         ┌─────────────────────┐
+                         │       versos        │
+                         │                     │
+                         │ id                  │
+                         │ categoria_id        │
+                         │ codigo              │
+                         │ contenido            │
+                         └───────┬─────┬───────┘
+                                 │     │
+                         N:1     │     │     N:1
+                                 │     │
+                  ┌──────────────┘     └──────────────┐
+                  ▼                                   ▼
+        ┌───────────────────┐               ┌───────────────────┐
+        │    favoritos      │               │    selecciones    │
+        │                   │               │                   │
+        │ evento_id         │               │ evento_id         │
+        │ verso_id          │               │ verso_id          │
+        └─────────┬─────────┘               └─────────┬─────────┘
+                  │                                   │
+                  └────────────────┬──────────────────┘
+                                   │
+                                   ▼
+                         ┌─────────────────────┐
+                         │       eventos       │
+                         │                     │
+                         │ id                  │
+                         │ cliente_id          │
+                         │ categoria_id        │
+                         │ nombre              │
+                         │ slug                │
+                         │ fecha               │
+                         │ estado              │
+                         └──────────┬──────────┘
+                                    │
+                                    │ N:1
+                                    ▼
+                         ┌─────────────────────┐
+                         │      clientes       │
+                         │                     │
+                         │ id                  │
+                         │ nombre              │
+                         │ telefono            │
+                         └─────────────────────┘
+11. Convivencia con el sistema actual
+
+Durante la primera etapa tendremos deliberadamente una situación híbrida.
+
+                    SUPABASE
+                       │
+          ┌────────────┴────────────┐
+          │                         │
+          ▼                         ▼
+     PANEL ACTUAL              CATÁLOGO V2
+          │                         │
+          ▼                         ▼
+       versos                  categorias_verso
+                                   │
+                                   ▼
+                                 eventos
+                                   │
+                                   ▼
+                                clientes
+
+El panel seguirá modificando:
+
+versos
+
+como lo hace actualmente.
+
+La V2 podrá consultar esos versos.
+
+12. Problema temporal: categorías
+
+Aquí está la única parte que requiere cuidado.
+
+Actualmente:
+
+versos.categoria
+
+es texto.
+
+Ejemplo:
+
+"Boda"
+"XV Años"
+"Bautizo"
+"Varios"
+
+Mientras que la nueva estructura tendrá:
+
+eventos.categoria_id
+
+Por lo tanto, durante la transición habrá dos conceptos:
+
+versos.categoria = "Boda"
+
+eventos.categoria_id = 1
+                 ↓
+categorias_verso.nombre = "Boda"
+
+La aplicación V2 puede hacer la correspondencia durante esta etapa.
+
+13. Migración definitiva de versos
+
+Una vez que la V2 funcione, migramos la tabla.
+
+Actualmente:
+
+versos
+├── categoria TEXT
+
+Pasará a:
+
+versos
+├── categoria_id BIGINT
+
+La migración conceptualmente será:
+
+"Boda"
+    ↓
+categorias_verso.id = 1
+"XV Años"
+    ↓
+categorias_verso.id = 2
+"Bautizo"
+    ↓
+categorias_verso.id = 3
+"Varios"
+    ↓
+categorias_verso.id = 4
+
+Después:
+
+versos.categoria
+
+se elimina.
+
+Y se establece la FK:
+
+versos.categoria_id
+        ↓
+categorias_verso.id
+14. Cambio de Varios → Esquelas
+
+Esto lo podemos hacer antes o durante la migración definitiva.
+
+Como ya decidiste hacerlo más adelante, la secuencia sería:
+
+Varios
+  ↓
+Esquelas
+
+Primero actualizamos los datos:
+
+categorias_verso
+4 | Esquelas
+
+y posteriormente actualizamos los versos que correspondan.
+
+No debemos asumir automáticamente que todos los versos de Varios son esquelas.
+
+Ese punto conviene revisarlo antes de hacer la migración.
+
+15. ¿Qué pasa con el panel actual?
+
+Inicialmente:
+
+Panel
+  ↓
+versos.categoria
+
+Después de la migración:
+
+Panel
+  ↓
+categorias_verso
+       ↓
+     versos
+
+Por ejemplo, en el panel seguirá apareciendo:
+
+[Boda ▼]
+
+Código:
+B25
+
+Verso:
+"Dos vidas..."
+
+Pero internamente:
+
+categoria_id = 1
+
+en lugar de:
+
+categoria = "Boda"
+
+La interfaz prácticamente puede permanecer igual.
+
+16. Eliminación de la estructura antigua
+
+No se debe borrar nada durante la primera fase.
+
+La eliminación será el último paso.
+
+Orden recomendado:
+
+1.
+
+Crear tablas nuevas.
+
+2.
+
+Probarlas.
+
+3.
+
+Construir V2.
+
+4.
+
+Migrar datos.
+
+5.
+
+Actualizar panel.
+
+6.
+
+Probar panel + catálogo juntos.
+
+7.
+
+Verificar que no exista ningún código que utilice:
+
+versos.categoria
+8.
+
+Agregar la FK:
+
+versos.categoria_id
+→ categorias_verso.id
+9.
+
+Eliminar:
+
+versos.categoria
+10.
+
+Eliminar cualquier código o consulta antigua.
+
+17. Lo que NO debemos eliminar todavía
+
+No eliminaría:
+
+versos
+
+ni modificaría:
+
+categoria
+
+hasta que tengamos confirmado que:
+
+el nuevo catálogo funciona;
+el panel funciona;
+los versos se muestran correctamente;
+favoritos funcionan;
+selección funciona;
+el panel puede detectar la selección;
+las URLs funcionan;
+no existen dependencias antiguas.
+18. RLS
+
+Durante desarrollo:
+
+RLS = OFF
+
+como solicitaste.
+
+Esto facilita muchísimo la construcción inicial.
+
+Pero antes de producción tendremos que separar al menos:
+
+ADMIN
+
+de:
+
+CLIENTE
+
+y evitar que un cliente pueda consultar:
+
+otros eventos
+otros clientes
+otras selecciones
+
+La arquitectura actual permite implementar esa separación posteriormente sin rediseñar las tablas.
+
+19. Flujo de datos final
+Administración
+Panel
+ ↓
+crear cliente
+ ↓
+crear evento
+ ↓
+generar slug
+ ↓
+evento activo
+Cliente
+/ana-y-diego-x7k2
+       ↓
+buscar evento
+       ↓
+obtener categoria_id
+       ↓
+obtener versos
+       ↓
+mostrar catálogo
+Cliente guarda
+Guardar B04
+      ↓
+favoritos
+      ↓
+evento_id + verso_id
+Cliente selecciona
+Elegir B07
+      ↓
+selecciones
+      ↓
+evento_id + verso_id
+Panel
+Evento Ana & Diego
+        ↓
+Favoritos: B04, B07
+        ↓
+Seleccionado: B07
+20. Estrategia completa de migración
+
+Yo la dividiría en cuatro fases:
+
+Fase A — Preparación
+NO TOCAR:
+versos
+panel actual
+
+Crear:
+
+categorias_verso
+clientes
+eventos
+favoritos
+selecciones
+Fase B — V2 paralela
+
+Construir:
+
+URL personalizada
+      ↓
+evento
+      ↓
+categoría
+      ↓
+versos actuales
+
+Después:
+
+favoritos
+selección
+compartir
+
+El sistema viejo continúa funcionando.
+
+Fase C — Integración
+
+Modificar el panel para administrar:
+
+Clientes
+Eventos
+Versos
+
+Y comprobar que ambos sistemas trabajan sobre la misma información.
+
+Fase D — Migración definitiva
+
+Convertir:
+
+versos.categoria
+
+en:
+
+versos.categoria_id
+
+Crear FK.
+
+Actualizar panel.
+
+Actualizar consultas.
+
+Probar.
+
+Finalmente eliminar:
+
+versos.categoria
+
+y cualquier código relacionado con la estructura antigua.
+
+21. Resultado final
+
+La base terminará aproximadamente así:
+
+┌─────────────────────┐
+│ categorias_verso    │
+│                     │
+│ Boda                │
+│ XV Años             │
+│ Bautizo / Comunión  │
+│ Esquelas            │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ versos              │
+│                     │
+│ B01                 │
+│ B02                 │
+│ B03                 │
+│ ...                 │
+└──────────┬──────────┘
+           ▲
+           │
+     ┌─────┴─────┐
+     │           │
+     │           │
+┌────┴─────┐ ┌───┴─────────┐
+│favoritos │ │selecciones  │
+└────┬─────┘ └────┬────────┘
+     │             │
+     └──────┬──────┘
+            ▼
+      ┌───────────┐
+      │ eventos   │
+      └─────┬─────┘
+            │
+            ▼
+      ┌───────────┐
+      │ clientes  │
+      └───────────┘
+
+La idea clave es que versos seguirá siendo el catálogo maestro y eventos será quien determine qué subconjunto ve cada cliente. No duplicamos versos por cliente.
+
+Y la migración es deliberadamente conservadora: primero construimos alrededor de lo que ya funciona; después convertimos gradualmente la estructura antigua; y solamente al final eliminamos lo que ya no tenga dependencias. Eso reduce muchísimo el riesgo de romper el catálogo que actualmente utilizas con clientes.

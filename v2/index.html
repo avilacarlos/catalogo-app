@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#fbf4f0">
+  <title>Catálogo de Versos · Art & Print</title>
+
+  <!-- Tailwind CSS v3.4.17 -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ap: {
+              ink: '#26222a',
+              rose: '#c96f88',
+              roseDark: '#ad536e',
+              blush: '#f7e7e5',
+              cream: '#fbf4f0',
+              gold: '#bd8b55',
+              sage: '#87907f',
+              line: '#ead8d5'
+            }
+          },
+          fontFamily: {
+            display: ['Georgia', 'Times New Roman', 'serif'],
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+          },
+          boxShadow: {
+            soft: '0 12px 35px rgba(74,45,55,.10)',
+            card: '0 5px 18px rgba(74,45,55,.08)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="min-h-screen bg-ap-cream text-ap-ink antialiased">
+  <div id="app" class="min-h-screen"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./main.js" defer></script>
+</body>
+</html>

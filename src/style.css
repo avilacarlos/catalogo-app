@@ -427,3 +427,131 @@ input:focus {
     align-items: center;
     /* <--- ESTO CENTRA LAS TARJETAS */
 }
+
+.events-panel {
+    justify-content: flex-start;
+    min-height: 100%;
+    padding: 28px 20px;
+}
+
+.events-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+}
+
+.events-header h1 {
+    margin: 4px 0 0;
+}
+
+.eyebrow {
+    margin: 0;
+    color: #b45d79;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+}
+
+.events-status {
+    width: 100%;
+    margin: 24px 0 12px;
+    color: #7e7a82;
+    font-size: .85rem;
+}
+
+.events-list {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+}
+
+.event-card {
+    padding: 18px;
+    border: 1px solid #ead8d5;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .78);
+    box-shadow: 0 5px 18px rgba(74, 45, 55, .08);
+}
+
+.event-card-top,
+.event-actions,
+.event-data {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.event-card h2 {
+    margin: 8px 0 4px;
+    color: #302a32;
+    font-family: Georgia, serif;
+    font-size: 1.35rem;
+}
+
+.event-card p {
+    margin: 0;
+    color: #716b74;
+    font-size: .85rem;
+    line-height: 1.5;
+}
+
+.event-date {
+    color: #8b8a80;
+    font-size: .75rem;
+    text-align: right;
+}
+
+.event-status {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 999px;
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.event-status-activo { background: #87907f; }
+.event-status-borrador { background: #bd8b55; }
+.event-status-cerrado,
+.event-status-archivado { background: #8b858b; }
+
+.event-data {
+    margin: 16px 0 12px;
+    padding: 12px 0;
+    border-top: 1px solid #f0e1df;
+    border-bottom: 1px solid #f0e1df;
+}
+
+.event-data div { display: grid; gap: 3px; }
+.event-data small { color: #9a8e91; font-size: .7rem; }
+.event-data strong { color: #b45d79; font-size: 1rem; }
+
+.event-selection {
+    min-height: 42px;
+    font-family: Georgia, serif;
+    font-style: italic;
+}
+
+.event-actions {
+    align-items: center;
+    margin-top: 16px;
+}
+
+.event-actions a,
+.event-actions button {
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: #f4e3e1;
+    color: #b45d79;
+    cursor: pointer;
+    font: inherit;
+    font-size: .78rem;
+    text-decoration: none;
+}
+
+.event-actions a { background: #c96f88; color: #fff; }
+.events-empty { padding: 20px 0; text-align: center; }

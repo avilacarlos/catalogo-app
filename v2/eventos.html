@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos | Art & Print</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body class="admin-v2-body">
+    <div class="app-shell events-shell">
+        <main class="events-panel">
+            <div class="events-header">
+                <div>
+                    <p class="eyebrow">ART & PRINT</p>
+                    <h1>Eventos</h1>
+                    <p class="subtitle">Catálogos y selecciones de clientes</p>
+                </div>
+                <a href="./index.html?slug=demo-v2-art-print-7k2m" class="back-link">Catálogo</a>
+            </div>
+
+            <form id="event-form" class="event-form">
+                <h2>Nuevo evento</h2>
+                <div class="form-grid">
+                    <label>Cliente<input name="cliente_nombre" required placeholder="Nombre del cliente"></label>
+                    <label>Festejado<input name="festejado" required placeholder="Alondra"></label>
+                    <label>Categoría<select name="categoria_id" id="categoria_id" required></select></label>
+                </div>
+                <button class="form-submit" type="submit">Crear evento</button>
+                <p id="event-form-message" class="form-message" role="status"></p>
+            </form>
+
+            <div id="events-status" class="events-status">Cargando eventos...</div>
+            <div id="events-list" class="events-list"></div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./eventos.js" defer></script>
+</body>
+
+</html>
