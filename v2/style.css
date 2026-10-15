@@ -35,8 +35,236 @@ button:focus-visible, a:focus-visible {
   overflow: hidden;
 }
 
+.verse-detail-shell {
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+}
+
+.verse-detail-main {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+}
+
+.verse-detail-header {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: 3rem 1fr 3rem;
+  align-items: start;
+  min-height: 4.5rem;
+  padding: 0 0 .2rem;
+}
+
+.verse-detail-header-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  color: #26222a;
+}
+
+.verse-detail-layout {
+  height: auto;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.verse-detail-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: .2rem 0 .35rem;
+}
+
+.verse-detail-decorations {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.verse-detail-flower {
+  position: absolute;
+  width: 60vw;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  opacity: .72;
+}
+
+.verse-detail-flower-top {
+  top: -1.5rem;
+  left: -3rem;
+  opacity: .4;
+}
+
+.verse-detail-flower-bottom {
+  right: -2rem;
+  bottom: 25svh;
+  opacity: .4;
+}
+
+.verse-detail-scroll {
+  width: min(100%, 350px);
+  max-height: min(65svh, 750px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 .4rem;
+  overflow-y: auto;
+}
+
+.verse-detail-scroll-container {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  width: min(100%, 350px);
+  flex: 1 1 auto;
+  overflow: hidden;
+  
+}
+
+.verse-detail-scroll-container.is-short .verse-detail-scroll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.verse-detail-scroll-container::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2.75rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(251,244,240,0), rgba(251,244,240,.98));
+  content: "";
+}
+
+.verse-detail-scroll-container .verse-detail-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.confirmation-shell,
+.confirmation-main {
+  box-sizing: border-box;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+}
+
+.confirmation-shell {
+  background: url("./assets/fondoa.webp") center top / cover no-repeat;
+}
+
+.confirmation-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.confirmation-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.5rem;
+}
+
+.confirmation-home {
+  position: absolute;
+  top: .2rem;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  color: #26222a;
+}
+
+.confirmation-screen {
+  box-sizing: border-box;
+  min-height: 0;
+  flex: 1 1 auto;
+  justify-content: space-evenly;
+  padding: .25rem 0 .75rem;
+}
+
+.confirmation-decorations {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confirmation-flower {
+  position: absolute;
+  width: clamp(7rem, 29vw, 12rem);
+  height: auto;
+  opacity: .48;
+}
+
+.confirmation-flower-top { top: 5rem; left: -4rem; }
+.confirmation-flower-bottom { right: -3rem; bottom: -1rem; }
+
+.confirmation-message { display: none; }
+.confirmation-category { display: none; }
+.confirmation-message-text {
+  width: 100%;
+  box-sizing: border-box;
+  font: 1rem/1.55 Inter, sans-serif;
+  color: #4b5563;
+}
+
+.verse-detail-scroll {
+  width: 100%;
+  max-height: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: .4rem .65rem 2.5rem;
+}
+
 body.is-home,
 html.is-home {
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+}
+
+body.is-verse-detail,
+html.is-verse-detail {
+  width: 100%;
+  height: 100svh;
+  min-height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body.is-verse-detail #app {
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+}
+
+body.is-confirmation,
+html.is-confirmation {
+  width: 100%;
+  height: 100svh;
+  min-height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body.is-confirmation #app {
   height: 100svh;
   max-height: 100svh;
   overflow: hidden;
@@ -302,4 +530,8 @@ html.is-home {
 .sla {
   -webkit-text-stroke-width: .35px;
       -webkit-text-stroke-color: #334155;
+}
+.whi {
+  -webkit-text-stroke-width: .35px;
+      -webkit-text-stroke-color: #ffffff;
 }

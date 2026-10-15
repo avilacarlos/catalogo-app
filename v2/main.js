@@ -204,8 +204,14 @@ async function loadSelection() {
 
 function render() {
   const isHome = state.currentView === "home";
+  const isVerseDetail = state.currentView === "verse";
+  const isConfirmation = state.currentView === "confirmation";
   document.body.classList.toggle("is-home", isHome);
   document.documentElement.classList.toggle("is-home", isHome);
+  document.body.classList.toggle("is-verse-detail", isVerseDetail);
+  document.documentElement.classList.toggle("is-verse-detail", isVerseDetail);
+  document.body.classList.toggle("is-confirmation", isConfirmation);
+  document.documentElement.classList.toggle("is-confirmation", isConfirmation);
 
   if (state.currentView === "home") return renderHome();
   if (state.currentView === "list") return renderList();
@@ -216,6 +222,8 @@ function render() {
 
 function baseLayout(content) {
   const isHome = state.currentView === "home";
+  const isVerseDetail = state.currentView === "verse";
+  const isConfirmation = state.currentView === "confirmation";
 
   if (isHome) {
     app.innerHTML = `
@@ -231,9 +239,9 @@ function baseLayout(content) {
   }
 
   app.innerHTML = `
-    <div class="app-shell relative mx-auto min-h-[100svh] overflow-x-hidden">
+    <div class="app-shell relative mx-auto min-h-[100svh] overflow-x-hidden ${isVerseDetail ? "verse-detail-shell" : ""} ${isConfirmation ? "confirmation-shell" : ""}">
       ${
-        state.currentView !== "list" && state.currentView !== "favorites"
+        !isVerseDetail && !isConfirmation && state.currentView !== "list" && state.currentView !== "favorites"
           ? `
       <div class="relative z-10 flex items-center justify-center pt-2">
         <img src="./assets/logo.webp" alt="Art & Print" class="h-20 sm:h-24 w-auto object-contain">
@@ -242,8 +250,8 @@ function baseLayout(content) {
           : ""
       }
 
-      <main class="relative z-10 view-enter px-4 pb-28 pt-2">${content}</main>
-      ${bottomNav()}
+      <main class="relative z-10 view-enter ${isVerseDetail ? "verse-detail-main px-4 pb-4 pt-2" : isConfirmation ? "confirmation-main px-4 pt-2" : "px-4 pb-28 pt-2"}">${content}</main>
+      ${isVerseDetail || isConfirmation ? "" : bottomNav()}
     </div>
   `;
 
@@ -412,6 +420,7 @@ function renderList() {
         ${cards || emptyState("No hay versos disponibles para esta categoría.")}
       </div>
     </section>
+
   `);
 }
 
@@ -425,33 +434,56 @@ function renderVerse() {
 
   const favorite = state.favorites.has(Number(verse.id));
   const selected = Number(state.selectedVerseId) === Number(verse.id);
+  const categoryTitle = state.category?.nombre || "BODA";
+  const isShortVerse = String(verse.contenido || "").length <= 180;
 
   baseLayout(`
-    <section class="flex min-h-[calc(100svh-9rem)] flex-col">
+    <header class="verse-detail-header relative z-10">
+      <button data-nav="list" class="verse-detail-header-action" aria-label="Volver a versos">
+        ${icon("arrow-left", "h-7 w-7")}
+      </button>
       <div class="text-center">
-        <p class="mt-2 text-xs tracking-[.25em] text-ap-roseDark">
+        <h1 class="font-display text-[8vw] font- uppercase text-ap-ink bla">
+          ${escapeHTML(categoryTitle)}
+        </h1>
+        <p class="mt-2 text-[4vw] pin text-ap-roseDark">
           ${String(state.currentVerseIndex + 1).padStart(2, "0")} /
           ${String(state.verses.length).padStart(2, "0")}
         </p>
       </div>
+      <button data-nav="home" class="verse-detail-header-action" aria-label="Ir a inicio">
+        ${icon("home", "h-7 w-7")}
+      </button>
+    </header>
 
-      <div class="flex flex-1 flex-col items-center justify-center py-10 text-center">
-        <span class="rounded-full bg-ap-blush px-5 py-2 font-sans text-xs font-bold tracking-[.18em] text-ap-roseDark">
+    <div class="verse-detail-decorations" aria-hidden="true">
+      <img src="./assets/b01.webp" alt="" class="verse-detail-flower verse-detail-flower-top">
+      <img src="./assets/b02.webp" alt="" class="verse-detail-flower verse-detail-flower-bottom">
+    </div>
+
+    <section class="verse-detail-layout relative flex h-full flex-col">
+      <div class="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center py-2 text-center">
+        <span class="rounded-full bg-ap-blush px-5 py-2 font-sans text-[4vw] font-bold  text-ap-roseDark">
           ${escapeHTML(verse.codigo)}
         </span>
 
-        <blockquote class="verse-content mt-9 max-w-[350px] font-display text-3xl leading-[1.35] italic text-ap-ink">
+        <div class="verse-detail-scroll-container ${isShortVerse ? "is-short" : ""} mt-2 max-w-[275px]">
+        <blockquote class="verse-content verse-detail-scroll font-display text-2xl leading-[1.25] sla italic text-ap-ink">
           “${escapeHTML(verse.contenido)}”
         </blockquote>
 
-        <div class="my-9 flex items-center gap-3 text-ap-gold">
-          <span class="h-px w-12 bg-ap-gold/50"></span>
-          ${icon("heart", "h-4 w-4 fill-current")}
-          <span class="h-px w-12 bg-ap-gold/50"></span>
+
         </div>
 
+        <div class="my-2 flex shrink-0 items-center gap-3 text-ap-gold">
+          <img src="./assets/separador.webp" alt="Flor" class="h-6 w-auto">
+        </div>
+
+      </div>
+
+      <div class="verse-detail-actions relative z-10 shrink-0">
         <button data-select-verse="${verse.id}"
-          class="w-full max-w-[350px] rounded-full ${selected ? "bg-ap-sage" : "bg-ap-rose"} px-6 py-3.5 font-display text-lg text-white shadow-soft">
+          class="w-full max-w-[350px] rounded-full ${selected ? "bg-ap-sage" : "bg-ap-rose"} px-6 py-3.5 font-display text-lg text-white shadow-soft whi">
           ${selected ? "✓ Verso elegido" : "Seleccionar este verso"}
           ${selected ? "" : icon("arrow-right", "ml-1 inline h-5 w-5")}
         </button>
@@ -470,9 +502,9 @@ function renderVerse() {
         </div>
       </div>
 
-      <div class="flex items-center justify-between border-t border-ap-line/70 pt-4">
+      <div class="relative z-10 flex shrink-0 items-center justify-between border-t border-ap-line/70 pt-3">
         <button data-prev-verse
-          class="flex items-center gap-1 px-2 py-2 font-display text-sm text-slate-600 disabled:opacity-30"
+          class="flex items-center gap-1 px-2 py-2 font-display text-4vw text-slate-700 sla disabled:opacity-30"
           ${state.currentVerseIndex === 0 ? "disabled" : ""}>
           ${icon("arrow-left", "h-4 w-4")} Anterior
         </button>
@@ -482,12 +514,13 @@ function renderVerse() {
         </button>
 
         <button data-next-verse
-          class="flex items-center gap-1 px-2 py-2 font-display text-sm text-slate-600 disabled:opacity-30"
+          class="flex items-center gap-1 px-2 py-2 font-display text-4vw text-slate-700 sla disabled:opacity-30"
           ${state.currentVerseIndex === state.verses.length - 1 ? "disabled" : ""}>
           Siguiente ${icon("arrow-right", "h-4 w-4")}
         </button>
       </div>
     </section>
+
   `);
 }
 
@@ -560,12 +593,26 @@ function renderConfirmation() {
   );
 
   baseLayout(`
-    <section class="flex min-h-[calc(100svh-9rem)] flex-col items-center justify-center text-center">
+    <header class="confirmation-header relative z-10">
+      <h1 class="font-sans text-[clamp(1.2rem,5vw,2rem)] font-medium uppercase tracking-[.22em] text-ap-ink">
+        ${escapeHTML(state.category?.nombre || "BODA")}
+      </h1>
+      <button data-nav="home" class="confirmation-home" aria-label="Ir a inicio">
+        ${icon("home", "h-8 w-8")}
+      </button>
+    </header>
+
+    <div class="confirmation-decorations" aria-hidden="true">
+      <img src="./assets/b01.webp" alt="" class="confirmation-flower confirmation-flower-top">
+      <img src="./assets/b02.webp" alt="" class="confirmation-flower confirmation-flower-bottom">
+    </div>
+
+    <section class="confirmation-screen relative z-10 flex flex-col items-center text-center">
       <div class="flex h-24 w-24 items-center justify-center rounded-full border-2 border-ap-gold bg-white/60 text-ap-rose shadow-soft">
         ${icon("check", "h-12 w-12")}
       </div>
 
-      <p class="mt-8 font-sans text-[10px] font-semibold tracking-[.35em] text-ap-sage">
+      <p class="confirmation-category mt-8 font-sans text-[10px] font-semibold tracking-[.35em] text-ap-sage">
         ${escapeHTML(state.category.nombre)}
       </p>
 
@@ -573,15 +620,19 @@ function renderConfirmation() {
 
       <p class="mt-4 max-w-[310px] text-base leading-7 text-slate-600">
         El verso <strong class="font-semibold text-ap-roseDark">${escapeHTML(verse?.codigo || "")}</strong>
-        se ha registrado para tu catálogo.
+        se ha registrado <br> para tu invitación.
       </p>
 
       <div class="my-7 h-px w-28 bg-ap-gold/50"></div>
 
-      <div class="max-w-[340px] rounded-3xl border border-white/80 bg-white/70 p-5 shadow-card">
-        <p class="verse-content font-display text-lg italic leading-7 text-slate-700">
+      <div class="confirmation-message max-w-[340px] rounded-3xl border border-white/80 bg-white/70 p-5 shadow-card">
+        <p class="font-sans text-base leading-7 text-slate-600">
           “${escapeHTML(verse?.contenido || "")}”
         </p>
+      </div>
+
+      <div class="confirmation-message-text max-w-[340px] rounded-3xl border border-white/80 bg-white/70 p-5 shadow-card">
+        Puedes seguir explorando más versos o revisar tus favoritos.
       </div>
 
       <button data-nav="favorites"
