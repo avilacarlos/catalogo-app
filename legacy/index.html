@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Acceso | Art & Print</title>
+</head>
+
+<body>
+    <div class="mobile-container">
+
+        <!-- PARALLAX -->
+        <div class="parallax-header">
+            <div id="logo-scene">
+                <!-- Asegúrate de tener estas imágenes en /public -->
+                <div class="layer" data-depth="0.10"><img src="/mancha.webp"></div>
+                <div class="layer" data-depth="0.20"><img src="/aro2.webp"></div>
+                <div class="layer" data-depth="0.30"><img src="/aro1.webp"></div>
+                <div class="layer" data-depth="0.40"><img src="/flores.webp"></div>
+                <div class="layer" data-depth="0.60"><img src="/nombre.webp"></div>
+            </div>
+        </div>
+
+        <!-- FORMULARIO -->
+        <div class="glass-panel">
+            <h1>Bienvenido</h1>
+            <p class="subtitle">Introduce tu clave de acceso</p>
+
+            <form id="login-form" style="width: 100%;">
+                <input type="password" id="password" placeholder="Contraseña" required>
+                <button type="submit" id="btn-login" class="btn btn-primary">ENTRAR</button>
+                <p id="error-msg" class="error-msg">Contraseña incorrecta</p>
+            </form>
+        </div>
+
+    </div>
+    <script type="module" src="/src/login.js"></script>
+</body>
+
+</html>

@@ -10,11 +10,15 @@
    - Antes de producción habrá que implementar RLS.
    ========================================================= */
 
-const SUPABASE_URL = "https://udwzfzmuhakscoehfzqq.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkd3pmem11aGFrc2NvZWhmenFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0Nzg1MTUsImV4cCI6MjEwNTA1NDUxNX0.PhaCm3rRHr02DUC3NrOdh2jNvYrgrh0EwONLMIXCnYk";
+import { createClient } from "@supabase/supabase-js";
+import "./style.css";
 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseUrl = import.meta.env.VITE_CATALOGO_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_CATALOGO_SUPABASE_ANON_KEY;
+const supabaseClient =
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null;
 
 const state = {
   event: null,
@@ -32,6 +36,14 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   renderLoading();
+
+  if (!supabaseClient) {
+    renderError(
+      "Catálogo no configurado",
+      "Falta configurar la conexión de Supabase para este catálogo.",
+    );
+    return;
+  }
 
   const slug = getEventSlug();
 
@@ -244,7 +256,7 @@ function baseLayout(content) {
         !isVerseDetail && !isConfirmation && state.currentView !== "list" && state.currentView !== "favorites"
           ? `
       <div class="relative z-10 flex items-center justify-center pt-2">
-        <img src="./assets/logo.webp" alt="Art & Print" class="h-20 sm:h-24 w-auto object-contain">
+        <img src="/assets/logo.webp" alt="Art & Print" class="h-20 sm:h-24 w-auto object-contain">
       </div>
       `
           : ""
@@ -287,7 +299,7 @@ function renderHome() {
     <!-- 1. HEADER: Logo grande y slogan -->
     <header class="flex flex-col items-center justify-center pt-1 shrink-0 py-4">
       <img
-        src="./assets/logo.webp"
+        src="/assets/logo.webp"
         alt="Art & Print"
         style="width: 75vw;  height: auto; max-height: 35svh; object-fit: contain;"
         class="drop-shadow-sm select-none"
@@ -303,7 +315,7 @@ function renderHome() {
         Hola, ${escapeHTML(greetingName)}
       </h1>
 <img
-        src="./assets/separador.webp"
+        src="/assets/separador.webp"
         alt="Art & Print"
         style="width:60vw;  height: auto; max-height: 35svh; object-fit: contain;"
         class="drop-shadow-sm select-none pt-2"
@@ -339,7 +351,7 @@ function renderList() {
   const cards = state.verses
     .map((verse, index) => {
       const favorite = state.favorites.has(Number(verse.id));
-      const adornment = index % 2 === 0 ? "./assets/a01.webp" : "./assets/a02.webp";
+      const adornment = index % 2 === 0 ? "/assets/a01.webp" : "/assets/a02.webp";
 
       return `
       <article class="relative overflow-hidden rounded-3xl border border-ap-line bg-white/75 p-5 shadow-card backdrop-blur-sm">
@@ -365,7 +377,7 @@ function renderList() {
 
         <div class="relative z-10 ml-10 flex flex-col items-center text-center">
         <p class="verse-preview mt-4 w-full text-center font-display text-[6vw] leading-7 italic text-slate-700 sla">
-          “${escapeHTML(verse.contenido)}”
+          “${escapeHTML(normalizeVerseContent(verse.contenido))}”
         </p>
 
         <button data-open-verse="${index}"
@@ -387,7 +399,7 @@ function renderList() {
 
         <div class="my-4 flex items-center justify-center gap-3 text-ap-gold">
           <img
-        src="./assets/separador.webp"
+        src="/assets/separador.webp"
         alt="Art & Print"
         style="width:50vw;  height: auto; max-height: 35svh; object-fit: contain;"
         class="drop-shadow-sm select-none "
@@ -455,8 +467,8 @@ function renderVerse() {
     </header>
 
     <div class="verse-detail-decorations" aria-hidden="true">
-      <img src="./assets/b01.webp" alt="" class="verse-detail-flower verse-detail-flower-top">
-      <img src="./assets/b02.webp" alt="" class="verse-detail-flower verse-detail-flower-bottom">
+      <img src="/assets/b01.webp" alt="" class="verse-detail-flower verse-detail-flower-top">
+      <img src="/assets/b02.webp" alt="" class="verse-detail-flower verse-detail-flower-bottom">
     </div>
 
     <section class="verse-detail-layout relative flex h-full flex-col">
@@ -467,14 +479,14 @@ function renderVerse() {
 
         <div class="verse-detail-scroll-container ${isShortVerse ? "is-short" : ""} mt-2 max-w-[275px]">
         <blockquote class="verse-content verse-detail-scroll font-display text-2xl leading-[1.25] sla italic text-ap-ink">
-          “${escapeHTML(verse.contenido)}”
+          “${escapeHTML(normalizeVerseContent(verse.contenido))}”
         </blockquote>
 
 
         </div>
 
         <div class="my-2 flex shrink-0 items-center gap-3 text-ap-gold">
-          <img src="./assets/separador.webp" alt="Flor" class="h-6 w-auto">
+          <img src="/assets/separador.webp" alt="Flor" class="h-6 w-auto">
         </div>
 
       </div>
@@ -532,7 +544,7 @@ function renderFavorites() {
       const originalIndex = state.verses.findIndex(
         (v) => Number(v.id) === Number(verse.id),
       );
-      const adornment = index % 2 === 0 ? "./assets/a01.webp" : "./assets/a02.webp";
+      const adornment = index % 2 === 0 ? "/assets/a01.webp" : "/assets/a02.webp";
 
       return `
       <article class="relative overflow-hidden rounded-3xl border border-ap-line bg-white/80 p-5 shadow-card">
@@ -556,7 +568,7 @@ function renderFavorites() {
 
         <div class="relative z-10 ml-12 flex flex-col items-center text-center">
          <p class="verse-preview mt-4 w-full text-center font-display text-[6vw] leading-7 italic text-slate-700 sla">
-          “${escapeHTML(verse.contenido)}”
+         “${escapeHTML(normalizeVerseContent(verse.contenido))}”
         </p>
 
           <button data-open-verse="${originalIndex}"
@@ -599,8 +611,8 @@ function renderConfirmation() {
     </header>
 
     <div class="confirmation-decorations" aria-hidden="true">
-      <img src="./assets/b01.webp" alt="" class="confirmation-flower confirmation-flower-top">
-      <img src="./assets/b02.webp" alt="" class="confirmation-flower confirmation-flower-bottom">
+      <img src="/assets/b01.webp" alt="" class="confirmation-flower confirmation-flower-top">
+      <img src="/assets/b02.webp" alt="" class="confirmation-flower confirmation-flower-bottom">
     </div>
 
     <section class="confirmation-screen relative z-10 flex flex-col items-center text-center">
@@ -624,11 +636,11 @@ function renderConfirmation() {
         se ha registrado  para tu invitación.
       </p>
 
-      <img src="./assets/separador.webp" alt="Flor" class="my-4 h-6 w-auto">
+      <img src="/assets/separador.webp" alt="Flor" class="my-4 h-6 w-auto">
 
       <div class="confirmation-message max-w-[340px] rounded-3xl border border-white/80 bg-white/70 p-5 shadow-card">
         <p class="font-sans text-base leading-7 text-slate-600">
-          “${escapeHTML(verse?.contenido || "")}”
+          “${escapeHTML(normalizeVerseContent(verse?.contenido || ""))}”
         </p>
       </div>
 
@@ -769,7 +781,7 @@ async function shareVerse(verseId) {
 
   const text = `${verse.codigo}
 
-“${verse.contenido}”
+“${normalizeVerseContent(verse.contenido)}”
 
 Elegido de nuestro catálogo de versos de Art & Print.`;
 
@@ -851,11 +863,11 @@ function toast(message) {
 
 function getCategoryIllustration(category) {
   const slug = normalizeCategory(category?.slug || category?.nombre || "");
-  if (slug.includes("xv")) return "./assets/xv.webp";
-  if (slug.includes("baut")) return "./assets/bautizo.webp";
+  if (slug.includes("xv")) return "/assets/xv.webp";
+  if (slug.includes("baut")) return "/assets/bautizo.webp";
   if (slug.includes("esquel") || slug.includes("rip") || slug === "varios")
-    return "./assets/rip.webp";
-  return "./assets/boda.webp";
+    return "/assets/rip.webp";
+  return "/assets/boda.webp";
 }
 
 function categoryArticle(category) {
@@ -908,6 +920,13 @@ function escapeHTML(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function normalizeVerseContent(value) {
+  return String(value ?? "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/<br\s*\/?\s*>/gi, "\n")
+    .replace(/\\n/g, "\n");
 }
 
 /* ========================= SVG ICONS ========================= */

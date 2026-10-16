@@ -1,41 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
-<head>
+  <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Acceso | Art & Print</title>
-</head>
-
-<body>
-    <div class="mobile-container">
-
-        <!-- PARALLAX -->
-        <div class="parallax-header">
-            <div id="logo-scene">
-                <!-- Asegúrate de tener estas imágenes en /public -->
-                <div class="layer" data-depth="0.10"><img src="/mancha.webp"></div>
-                <div class="layer" data-depth="0.20"><img src="/aro2.webp"></div>
-                <div class="layer" data-depth="0.30"><img src="/aro1.webp"></div>
-                <div class="layer" data-depth="0.40"><img src="/flores.webp"></div>
-                <div class="layer" data-depth="0.60"><img src="/nombre.webp"></div>
-            </div>
-        </div>
-
-        <!-- FORMULARIO -->
-        <div class="glass-panel">
-            <h1>Bienvenido</h1>
-            <p class="subtitle">Introduce tu clave de acceso</p>
-
-            <form id="login-form" style="width: 100%;">
-                <input type="password" id="password" placeholder="Contraseña" required>
-                <button type="submit" id="btn-login" class="btn btn-primary">ENTRAR</button>
-                <p id="error-msg" class="error-msg">Contraseña incorrecta</p>
-            </form>
-        </div>
-
-    </div>
-    <script type="module" src="/src/login.js"></script>
-</body>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FBF4F0">
+    <title>Catálogo de Versos · Art & Print</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { ap: { ink: '#26222a', rose: '#c96f88', roseDark: '#ad536e', blush: '#f7e7e5', cream: '#fbf4f0', gold: '#bd8b55', sage: '#87907f', line: '#ead8d5' } },
+            fontFamily: { display: ['"Cormorant Garamond"', 'Georgia', 'Times New Roman', 'serif'], script: ['"Alex Brush"', 'cursive'], sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+            boxShadow: { soft: '0 12px 35px rgba(74,45,55,.10)', card: '0 5px 18px rgba(74,45,55,.08)' }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="min-h-screen bg-ap-cream text-ap-ink antialiased">
+    <div id="app" class="min-h-screen"></div>
+    <script type="module" src="/src/catalogo-v2-entry.js"></script>
+  </body>
 </html>

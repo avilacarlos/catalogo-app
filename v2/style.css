@@ -169,7 +169,7 @@ button:focus-visible, a:focus-visible {
 }
 
 .confirmation-shell {
-  background: url("./assets/fondoa.webp") center top / cover no-repeat;
+  background: url("/assets/fondoa.webp") center top / cover no-repeat;
 }
 
 .confirmation-main {
@@ -302,7 +302,7 @@ body.is-confirmation #app {
     radial-gradient(circle at 12% 12%, rgba(201,111,136,.13), transparent 28%),
     radial-gradient(circle at 90% 24%, rgba(135,144,127,.13), transparent 25%),
     radial-gradient(circle at 30% 92%, rgba(189,139,85,.09), transparent 25%),
-    url("./assets/fondoa.webp") center top / cover no-repeat;
+    url("/assets/fondoa.webp") center top / cover no-repeat;
 }
 
 .ap-background::after {
@@ -321,6 +321,7 @@ body.is-confirmation #app {
 .verse-content {
   overflow-wrap: anywhere;
   hyphens: auto;
+  white-space: pre-line;
 }
 
 .verse-preview {
@@ -330,6 +331,7 @@ body.is-confirmation #app {
   overflow: hidden;
   overflow-wrap: anywhere;
   hyphens: auto;
+  white-space: pre-line;
 }
 
 .view-enter {

@@ -2,8 +2,8 @@
 
 ## Estado actual
 
-- El proyecto actual administra versos mediante la tabla existente `versos`.
-- La carpeta `v2` contiene el plan de refactorización del catálogo.
+- El catálogo público se sirve desde la entrada raíz `index.html`; su implementación está en `v2`.
+- Las páginas antiguas se conservan en el repositorio, fuera del build, para permitir una reversión durante la validación.
 - La V2 utilizará el mismo proyecto de Supabase.
 - La tabla `versos` se conservará sin cambios durante la primera etapa.
 - El catálogo V2 funcionará mediante una URL personalizada basada en el `slug` de un evento.
@@ -25,22 +25,14 @@
   - `favoritos`;
   - `selecciones`.
 - El script SQL incluye claves foráneas, índices, restricciones de estados, unicidad de `slug`, unicidad de favoritos por evento y un único registro de selección por evento.
-- El script SQL no habilita RLS ni crea políticas de seguridad.
-- El script SQL todavía no se ha ejecutado en Supabase.
+- El esquema SQL se ejecutó en Supabase; RLS y sus políticas permanecen pendientes.
 
 ## Pendientes
 
-1. Ejecutar y validar el SQL en Supabase.
-2. Verificar que `public.versos.id` sea compatible con las referencias `bigint`.
-3. Insertar y revisar las categorías iniciales.
-4. Ejecutar `v2/02-test-data.sql` y crear el evento demo.
-5. Validar el flujo `slug -> evento -> categoría -> versos`.
-6. Probar favoritos, selección y compartir.
-7. Separar el código V2 en módulos y mover las credenciales a variables de entorno.
-8. Integrar la administración de clientes y eventos en el panel actual.
-9. Migrar progresivamente `versos.categoria` hacia `versos.categoria_id`.
-10. Confirmar que no existan dependencias de la estructura antigua.
-11. **Al final, habilitar RLS y crear las políticas necesarias para separar el acceso administrativo del acceso del cliente.**
+1. Configurar `VITE_CATALOGO_SUPABASE_URL` y `VITE_CATALOGO_SUPABASE_ANON_KEY` en Netlify y desplegar el build raíz.
+2. Validar en producción los enlaces por `slug`, favoritos, selección, compartir y uso móvil.
+3. Migrar progresivamente `versos.categoria` a `versos.categoria_id` y confirmar que no queden dependencias antiguas.
+4. **Al final, habilitar RLS y crear políticas que separen el acceso administrativo del acceso del cliente.**
 
 ## Actualizacion
 
@@ -81,17 +73,15 @@
 - Se mantiene una sola fuente de datos en el mismo proyecto Supabase.
 - Se crearon y validaron las tablas de categorías, clientes, eventos, favoritos y selecciones.
 - El catálogo público funciona por `slug`, muestra el cliente y el festejado, carga la categoría correcta y permite favoritos y selección.
-- El panel administrativo principal ahora crea, edita, consulta y elimina eventos.
+- El panel `C:\\desarrollo_vite\\panel-administrativo` crea, edita, consulta y elimina eventos, y será la fuente de las URLs públicas.
 - La eliminación de un evento conserva el cliente y elimina favoritos y selección asociados.
 - Se mantienen compatibles los formatos antiguos de categorías y versos.
-- Se decidió que `v2/eventos.html` y `v2/eventos.js` son herramientas auxiliares de desarrollo, no parte del flujo final.
+- Se retiraron `v2/eventos.html` y `v2/eventos.js`; la administración de eventos corresponde al panel administrativo.
 
 ### Pendiente
 
-- Terminar la normalización definitiva de categorías ejecutando y revisando `v2/04-normalize-categories.sql`.
-- Normalizar los versos para convertir `<br>` y `\\n` literales en saltos de línea reales.
-- Actualizar el editor de versos para guardar saltos de línea seguros y renderizar con `white-space: pre-line`.
-- Configurar `VITE_CATALOGO_V2_URL` para la URL real del catálogo.
+- Configurar el despliegue de `catalogodeversos.netlify.app` para publicar `v2` en la raíz del sitio.
+- Confirmar que el panel administrativo genera enlaces `https://catalogodeversos.netlify.app/?slug={slug}` y retirar el flujo antiguo después de validar la transición.
 - Mejorar el diseño visual del catálogo V2 y agregar arte/decoración.
 - Revisar accesibilidad, mensajes y pruebas en móvil.
 - Habilitar RLS y crear políticas para separar acceso público y administración.
@@ -101,3 +91,13 @@
 - No eliminar ni modificar inicialmente `versos.categoria`.
 - No activar RLS durante el desarrollo inicial.
 - No eliminar la estructura antigua hasta validar completamente la V2 y el panel actual.
+
+## Actualización de transición
+
+- Se ejecutó la normalización de saltos de línea en Supabase y se confirmó que el catálogo los renderiza correctamente.
+- El diagnóstico de categorías duplicadas devolvió cero filas; no se ejecutó la migración de normalización porque no había duplicados.
+- El panel administra clientes y eventos en Supabase; los enlaces finales deben apuntar a `https://catalogodeversos.netlify.app/?slug={slug}`, sin la ruta temporal `/v2` ni el dominio del panel `artnprint-admin.netlify.app`.
+- Se eliminaron las páginas auxiliares de administración de eventos dentro de `v2` para evitar duplicar ese flujo.
+- `index.html` fue sustituido por la entrada del catálogo V2; la versión anterior se conserva en `legacy/index.html`.
+- Vite ahora publica solo el catálogo raíz; los recursos V2 están aislados en `v2/public/assets` y los recursos antiguos se conservan en `public`.
+- Las credenciales de Supabase se leen desde `VITE_CATALOGO_SUPABASE_URL` y `VITE_CATALOGO_SUPABASE_ANON_KEY`; falta configurarlas en Netlify.
