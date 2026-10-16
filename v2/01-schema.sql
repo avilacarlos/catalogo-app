@@ -113,7 +113,7 @@ values
   ('Boda', 'boda', 'Versos para bodas', 1),
   ('XV Anos', 'xv-anos', 'Versos para XV anos', 2),
   ('Bautizo', 'bautizo', 'Versos para bautizos', 3),
-  ('Varios', 'varios', 'Versos generales', 4)
+  ('Esquelas', 'varios', 'Versos para esquelas', 4)
 on conflict (slug) do nothing;
 
 -- No habilitar RLS en esta etapa.

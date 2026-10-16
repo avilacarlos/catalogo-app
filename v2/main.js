@@ -260,7 +260,7 @@ function baseLayout(content) {
 
 function bottomNav() {
   return `
-    <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-[520px] border-t border-ap-line/80 bg-white/90 px-3 pb-[calc(.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-md">
+    <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-[520px] border-t border-ap-line/80 bg-ap-blush px-3 pb-[calc(.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-md">
       <div class="grid grid-cols-3 gap-2">
         <button data-nav="list" class="nav-item ${state.currentView === "list" ? "text-ap-rose" : "text-slate-500"}">
           ${icon("book", "h-5 w-5")}<span>Versos</span>
@@ -279,6 +279,7 @@ function bottomNav() {
 function renderHome() {
   const displayName =
     state.event.festejado || state.event.clientes?.nombre || "";
+  const greetingName = getFirstName(displayName);
   const categoryTitle = state.category?.nombre || "Boda";
   const illustrationSrc = getCategoryIllustration(state.category);
 
@@ -298,11 +299,8 @@ function renderHome() {
 
     <!-- 2. GREETING & DETALLES DEL EVENTO -->
     <div class="my-auto flex flex-col items-center justify-center px-2 py-1 gap-2 shrink-0 ">
-      <p class="font-display text-[#b9637c] leading-none font-normal pin" style="font-size: clamp(1.75rem, 5.5vw, 2.3rem);">
-        Hola,
-      </p>
-      <h1 class="font-display text-[#b9637c] pin font-normal leading-none mt-1 text-center" style="font-size: 12vw;">
-        ${escapeHTML(displayName)}
+      <h1 class="font-display text-[#b9637c] pin font-normal leading-none mt-1 text-center whitespace-nowrap" style="font-size: clamp(1.75rem, 10vw, 3rem);">
+        Hola, ${escapeHTML(greetingName)}
       </h1>
 <img
         src="./assets/separador.webp"
@@ -310,8 +308,8 @@ function renderHome() {
         style="width:60vw;  height: auto; max-height: 35svh; object-fit: contain;"
         class="drop-shadow-sm select-none pt-2"
       >
-      <p class="mt-2 font-sans text-[clamp(14px,4.5vw,22px)]  text-[#5f5863] leading-relaxed text-center ">
-        Hemos preparado una selección de <br> versos para su invitación de <span class="text-[#b9637c]">${escapeHTML(categoryTitle)}</span>
+      <p class="mt-2 font-sans text-[clamp(14px,4.5vw,22px)] text-[#5f5863] leading-relaxed text-center">
+        ${homeWelcomeMessage(state.category, categoryTitle)}
       </p>
 
     
@@ -371,7 +369,7 @@ function renderList() {
         </p>
 
         <button data-open-verse="${index}"
-          class="mt-5 flex w-fit self-end items-center justify-center gap-2 rounded-full bg-ap-blush px-5 py-3 font-display text-base text-ap-roseDark hover:bg-ap-rose hover:text-white pin">
+          class="mt-5 flex w-fit self-end items-center justify-center gap-2 rounded-full bg-ap-blush px-5 py-3 font-display text-base hover:bg-ap-rose hover:text-white pin">
           Ver completo ${icon("arrow-right", "h-4 w-4")}
         </button>
         </div>
@@ -384,7 +382,7 @@ function renderList() {
     <section>
       <div class="text-center">
         <h1 class="mt-2 font-display text-4xl text-ap-ink">
-          Versos para su ${escapeHTML(categoryArticle(state.category.nombre))}
+          Versos para ${escapeHTML(categoryArticle(state.category.nombre))}
         </h1>
 
         <div class="my-4 flex items-center justify-center gap-3 text-ap-gold">
@@ -443,7 +441,7 @@ function renderVerse() {
         ${icon("arrow-left", "h-7 w-7")}
       </button>
       <div class="text-center">
-        <h1 class="font-display text-[8vw] font- uppercase text-ap-ink bla">
+        <h1 class="font-display text-[7vw] font- uppercase text-ap-ink bla px-2 py-1 bg-white/70 rounded-full shadow-soft">
           ${escapeHTML(categoryTitle)}
         </h1>
         <p class="mt-2 text-[4vw] pin text-ap-roseDark">
@@ -490,19 +488,19 @@ function renderVerse() {
 
         <div class="mt-3 grid w-full max-w-[350px] grid-cols-2 gap-3">
           <button data-favorite="${verse.id}"
-            class="flex items-center justify-center gap-2 rounded-full border border-ap-line bg-white/75 px-4 py-3 font-display text-base">
+            class="flex items-center justify-center gap-2 rounded-full border border-ap-line text-slate-700 sla bg-white/75 px-4 py-3 font-display text-base">
             ${icon("heart", `h-5 w-5 text-ap-rose ${favorite ? "fill-current" : ""}`)}
             ${favorite ? "Guardado" : "Guardar"}
           </button>
 
           <button data-share-verse="${verse.id}"
-            class="flex items-center justify-center gap-2 rounded-full border border-ap-line bg-white/75 px-4 py-3 font-display text-base">
+            class="flex items-center justify-center gap-2 rounded-full border border-ap-line bg-white/75 px-4 py-3 font-display text-base text-slate-700 sla">
             ${icon("share", "h-5 w-5 text-ap-rose")} Compartir
           </button>
         </div>
       </div>
 
-      <div class="relative z-10 flex shrink-0 items-center justify-between border-t border-ap-line/70 pt-3">
+      <div class="verse-detail-footer relative z-10 flex shrink-0 items-center justify-between border-t border-ap-line/70">
         <button data-prev-verse
           class="flex items-center gap-1 px-2 py-2 font-display text-4vw text-slate-700 sla disabled:opacity-30"
           ${state.currentVerseIndex === 0 ? "disabled" : ""}>
@@ -594,9 +592,7 @@ function renderConfirmation() {
 
   baseLayout(`
     <header class="confirmation-header relative z-10">
-      <h1 class="font-sans text-[clamp(1.2rem,5vw,2rem)] font-medium uppercase tracking-[.22em] text-ap-ink">
-        ${escapeHTML(state.category?.nombre || "BODA")}
-      </h1>
+    
       <button data-nav="home" class="confirmation-home" aria-label="Ir a inicio">
         ${icon("home", "h-8 w-8")}
       </button>
@@ -618,12 +614,17 @@ function renderConfirmation() {
 
       <h1 class="mt-3 font-display text-4xl text-ap-ink">¡Verso elegido!</h1>
 
-      <p class="mt-4 max-w-[310px] text-base leading-7 text-slate-600">
+      <p class="mt-2 max-w-[310px] text-base leading-7 text-slate-600">
         El verso <strong class="font-semibold text-ap-roseDark">${escapeHTML(verse?.codigo || "")}</strong>
-        se ha registrado <br> para tu invitación.
+        se ha registrado ${confirmationRegistrationSuffix(state.category)}
       </p>
 
-      <div class="my-7 h-px w-28 bg-ap-gold/50"></div>
+      <p class="hidden mt-4 max-w-[250px] text-base leading-7 text-slate-600 ">
+        El verso <strong class="font-semibold text-ap-roseDark">${escapeHTML(verse?.codigo || "")}</strong>
+        se ha registrado  para tu invitación.
+      </p>
+
+      <img src="./assets/separador.webp" alt="Flor" class="my-4 h-6 w-auto">
 
       <div class="confirmation-message max-w-[340px] rounded-3xl border border-white/80 bg-white/70 p-5 shadow-card">
         <p class="font-sans text-base leading-7 text-slate-600">
@@ -636,18 +637,16 @@ function renderConfirmation() {
       </div>
 
       <button data-nav="favorites"
-        class="mt-6 w-full max-w-[340px] rounded-full bg-ap-rose px-6 py-3.5 font-display text-lg text-white shadow-soft">
+        class="mt-6 w-full max-w-[340px] rounded-full bg-ap-rose px-6 py-3.5 font-display text-lg text-white shadow-soft whi">
         Ver mis favoritos ${icon("arrow-right", "ml-1 inline h-5 w-5")}
       </button>
 
       <button data-nav="list"
-        class="mt-3 w-full max-w-[340px] rounded-full border border-ap-line bg-white/70 px-6 py-3.5 font-display text-lg text-ap-roseDark">
+        class="mt-3 w-full max-w-[340px] rounded-full border border-ap-line bg-white/70 px-6 py-3.5 font-display text-lg text-ap-roseDark pin">
         Seguir explorando
       </button>
 
-      <p class="mt-10 font-display text-xl italic text-ap-sage">
-        Gracias por dejarnos ser parte<br>de su historia.
-      </p>
+     
     </section>
   `);
 }
@@ -804,8 +803,8 @@ function renderLoading() {
     <div class="app-shell flex min-h-[100svh] items-center justify-center">
       <div class="flex flex-col items-center text-center">
         <div class="loader-ring"></div>
-        <p class="mt-5 font-display text-2xl text-ap-roseDark">Preparando tu catálogo...</p>
-        <p class="mt-2 text-sm text-slate-500">Un momento, por favor.</p>
+        <p class="mt-5 font-display text-2xl text-ap-roseDark pin">Preparando tu catálogo...</p>
+        <p class="mt-2 text-sm text-slate-500 sla">Un momento, por favor.</p>
       </div>
     </div>
   `;
@@ -865,6 +864,27 @@ function categoryArticle(category) {
   if (normalized.includes("baut")) return "Bautizo";
   if (normalized.includes("esquel")) return "Esquelas";
   return category;
+}
+
+function homeWelcomeMessage(category, categoryTitle) {
+  const categoryKey = normalizeCategory(category?.slug || category?.nombre);
+
+  if (categoryKey.includes("esquel") || categoryKey === "varios") {
+    return "Hemos preparado una selecci\u00f3n especial de versos y frases para honrar la memoria de su ser querido.";
+  }
+
+  return `Hemos preparado una selecci\u00f3n de <br> versos para su invitaci\u00f3n de <span class="text-[#b9637c]">${escapeHTML(categoryTitle)}</span>`;
+}
+
+function getFirstName(value) {
+  return String(value || "").trim().split(/\s+/)[0] || "";
+}
+
+function confirmationRegistrationSuffix(category) {
+  const categoryKey = normalizeCategory(category?.slug || category?.nombre);
+  return categoryKey.includes("esquel") || categoryKey === "varios"
+    ? "para la esquela."
+    : "para tu invitaci\u00f3n.";
 }
 
 function eventArticle(category) {
